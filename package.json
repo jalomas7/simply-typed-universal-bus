@@ -3,6 +3,9 @@
   "version": "1.0.1",
   "description": "",
   "main": "dist/stub.js",
+  "repository": {
+    "url": "https://github.com/jalomas7/simply-typed-universal-bus"
+  },
   "scripts": {
     "build": "tsc"
   },
