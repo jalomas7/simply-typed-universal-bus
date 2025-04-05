@@ -1,0 +1,16 @@
+{
+  "name": "simply-typed-universal-bus",
+  "version": "1.0.1",
+  "description": "",
+  "main": "dist/stub.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Jacob Massengill",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "typescript": "^5.8.3"
+  }
+}
