@@ -1,6 +1,6 @@
 {
   "name": "simply-typed-universal-bus",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "",
   "main": "dist/stub.js",
   "repository": {
@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "Jacob Massengill",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "typescript": "^5.8.3"
   }

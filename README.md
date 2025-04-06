@@ -35,3 +35,27 @@ bus.on('error', (err) => {
 
 bus.emit('error', new Error('Something went wrong'));
 ```
+
+### Asynchronous listeners
+
+```ts
+import { EventBus } from "simply-typed-universal-bus";
+
+interface MyEvents {
+    data: { id: number, value: string };
+}
+
+const bus = new EventBus<MyEvents>();
+
+bus.on('data', async (payload) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(`Received async data, id: ${payload.id}, value: ${payload.value}`);
+});
+
+// emit asynchronously
+(async () => {
+    console.log(`Emitting asynchronously`);
+    await bus.emitAsync('data', { id: 1, value: 'Hello World' });
+    console.log('Complete');
+})();
+```
