@@ -1,4 +1,4 @@
-import { EventBus } from './stub';
+import { EventBus } from '../stub';
 
 // Define the events and payload types.
 interface MyEvents {

@@ -7,7 +7,7 @@
     "url": "https://github.com/jalomas7/simply-typed-universal-bus"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "rm -rf dist && tsc"
   },
   "keywords": [],
   "author": "Jacob Massengill",
