@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "Jacob Massengill",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "typescript": "^5.8.3"
   }

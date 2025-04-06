@@ -5,7 +5,7 @@ export interface EventTypeMap {
 
 export class EventBus<T extends EventTypeMap> {
     private listeners: {
-        [K in keyof T]?: Array<(payload: T[K]) => void>;
+        [K in keyof T]?: Array<(payload: T[K]) => void | Promise<void>>;
     } = {};
 
     // Subscribe to an event.
@@ -30,4 +30,12 @@ export class EventBus<T extends EventTypeMap> {
             }
         }
     }
+
+    // Emit an event and listen asynchronously
+    async emitAsync<K extends keyof T>(event: K, payload: T[K]): Promise<void> {
+        if (this.listeners[event]) {
+            await Promise.all(this.listeners[event].map(listener => listener(payload)));
+        }
+    }
+
 }
