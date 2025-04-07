@@ -2,6 +2,7 @@ import { EventBus } from "./stub";
 
 interface TestEvents {
     data: string;
+    test: string;
 }
 
 describe('EventBus', () => {
@@ -18,5 +19,77 @@ describe('EventBus', () => {
         testBus.emit('data', 'test');
 
         expect(listener).toHaveBeenCalledWith('test');
+    });
+
+    it('Should not invoke a listener for a separate event', () => {
+        const listener = jest.fn();
+        testBus.on('data', listener);
+
+        testBus.emit('test', 'testing');
+        expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('should be able to remove listeners', () => {
+        const listener = jest.fn();
+        testBus.on('data', listener);
+        testBus.emit('data', 'test');
+        testBus.off('data', listener);
+        testBus.emit('data', 'test');
+        expect(listener).toHaveBeenCalledTimes(1);
+    });
+
+    it('Should invoke listeners in order of priority', () => {
+        const listener1 = jest.fn();
+        const listener2 = jest.fn();
+
+        testBus.on('data', listener1);
+        testBus.on('data', listener2, { priority: 5 });
+
+        testBus.emit('data', 'test');
+
+        expect(listener2).toHaveBeenCalledBefore(listener1);
+    });
+
+    it('Should invoke async listeners', async () => {
+        const listener = jest.fn(async () => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        });
+
+        testBus.on('data', listener);
+
+        await testBus.emitAsync('data', 'test');
+
+        expect(listener).toHaveBeenCalledWith('test');
+    });
+
+    it('Should remove all listeners for an event', () => {
+        const listener1 = jest.fn();
+        const listener2 = jest.fn();
+
+        testBus.on('data', listener1);
+        testBus.on('data', listener2);
+
+        testBus.removeAllListenersForEvent('data');
+
+        testBus.emit('data', 'test');
+
+        expect(listener1).not.toHaveBeenCalled();
+        expect(listener2).not.toHaveBeenCalled();
+    });
+
+    it('Should remove all listeners', () => {
+        const listener1 = jest.fn();
+        const listener2 = jest.fn();
+
+        testBus.on('data', listener1);
+        testBus.on('test', listener2);
+
+        testBus.removeAllListeners();
+
+        testBus.emit('data', 'test');
+        testBus.emit('test', 'test');
+
+        expect(listener1).not.toHaveBeenCalled();
+        expect(listener2).not.toHaveBeenCalled();
     });
 });
