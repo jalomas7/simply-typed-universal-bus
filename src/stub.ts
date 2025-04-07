@@ -5,6 +5,7 @@ export interface EventTypeMap {
 
 export interface ListenerOptions {
     priority?: number;
+    abortAllOnError?: boolean;
 }
 
 export class EventBus<T extends EventTypeMap> {
@@ -12,12 +13,19 @@ export class EventBus<T extends EventTypeMap> {
         [K in keyof T]?: Array<ListenerOptions & { listener: (payload: T[K]) => void | Promise<void> }>;
     } = {};
 
+    private globalErrorHandler?: <K extends keyof T>(error: Error, event: K, payload: T[K]) => void;
+
+    // Method to set a global error handler
+    setErrorHandler(handler: <K extends keyof T>(error: Error, event: K, payload: T[K]) => void): void {
+        this.globalErrorHandler = handler;
+    }
+
     // Subscribe to an event.
     on<K extends keyof T>(event: K, listener: (payload: T[K]) => void, options?: ListenerOptions): void {
         if (!this.listeners[event]) {
             this.listeners[event] = [];
         }
-        this.listeners[event]!.push({ listener, priority: options?.priority });
+        this.listeners[event]!.push({ listener, ...options });
 
         // Sort ascending, higher number == higher priority
         this.listeners[event].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
@@ -30,19 +38,58 @@ export class EventBus<T extends EventTypeMap> {
     }
 
     // Emit an event with the proper payload.
-    emit<K extends keyof T>(event: K, payload: T[K]): void {
-        if (this.listeners[event]) {
-            for (const { listener } of this.listeners[event]!) {
+    emit<K extends keyof T>(event: K, payload: T[K]): Error[] {
+        const errors: Error[] = [];
+        if (!this.listeners[event]) {
+            return errors;
+        }
+
+        for (const { listener, abortAllOnError } of this.listeners[event]!) {
+            try {
                 listener(payload);
+            } catch (error) {
+
+                const err = error instanceof Error ? error : new Error(String(error));
+                errors.push(err);
+                if (this.globalErrorHandler) {
+                    this.globalErrorHandler(err, event, payload);
+                }
+
+                if (abortAllOnError) {
+                    throw error;
+                }
             }
         }
+
+        return errors;
     }
 
     // Emit an event and listen asynchronously
-    async emitAsync<K extends keyof T>(event: K, payload: T[K]): Promise<void> {
-        if (this.listeners[event]) {
-            await Promise.all(this.listeners[event].map(({ listener }) => listener(payload)));
+    async emitAsync<K extends keyof T>(event: K, payload: T[K]): Promise<Error[]> {
+        const errors: Error[] = [];
+        if (!this.listeners[event]) {
+            return errors;
         }
+
+        await Promise.all(this.listeners[event].map(async ({ listener, abortAllOnError }) => {
+            try {
+                await listener(payload);
+            } catch (error) {
+
+                const err = error instanceof Error ? error : new Error(String(error));
+                errors.push(err);
+
+                if (this.globalErrorHandler) {
+                    this.globalErrorHandler(err, event, payload);
+                }
+
+                if (abortAllOnError) {
+                    throw error;
+                }
+            }
+        }));
+
+        return errors;
     }
 
     removeAllListenersForEvent<K extends keyof T>(event: K): void {

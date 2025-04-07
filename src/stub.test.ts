@@ -92,4 +92,54 @@ describe('EventBus', () => {
         expect(listener1).not.toHaveBeenCalled();
         expect(listener2).not.toHaveBeenCalled();
     });
+
+    it('should not throw when emitting an event', () => {
+        const listener = jest.fn(() => { throw new Error('test'); });
+        testBus.on('data', listener);
+
+        expect(async () => {
+            testBus.emit('data', 'test');
+            await testBus.emitAsync('data', 'test');
+        }).not.toThrow();
+    });
+
+    it('should throw when abortAllOnError is true', () => {
+        const listener = jest.fn(() => { throw new Error('test'); });
+        const listener2 = jest.fn();
+        testBus.on('data', listener, { abortAllOnError: true });
+        testBus.on('data', listener2);
+
+        expect(() => {
+            testBus.emit('data', 'test');
+        }).toThrow();
+
+        expect(async () => {
+            await testBus.emitAsync('data', 'test');
+        }).rejects.toThrow();
+
+        expect(listener2).not.toHaveBeenCalled();
+    });
+
+    it('should call global error handler', () => {
+        const listener = jest.fn(() => { throw new Error('test'); });
+        const globalErrorHandler = jest.fn();
+
+        testBus.setErrorHandler(globalErrorHandler);
+        testBus.on('data', listener);
+
+        testBus.emit('data', 'test');
+
+        expect(globalErrorHandler).toHaveBeenCalled();
+    });
+
+    it('should return errors from emit', () => {
+        const listener = jest.fn(() => { throw new Error('test'); });
+        const listener2 = jest.fn(() => { throw new Error('test2'); });
+        testBus.on('data', listener);
+        testBus.on('data', listener2);
+        const errors = testBus.emit('data', 'test');
+        expect(errors).toHaveLength(2);
+        expect(errors[0].message).toBe('test');
+        expect(errors[1].message).toBe('test2');
+    });
 });
