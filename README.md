@@ -59,3 +59,28 @@ bus.on('data', async (payload) => {
     console.log('Complete');
 })();
 ```
+
+### Listener prioritization
+
+The order in which listeners are invoked can be constrolled with the `priority` listener option. The higher the priority, the sooner the listener is evoked during `emit`. 
+
+```ts
+import { EventBus } from "simply-typed-universal-bus";
+
+interface MyEvents {
+    data: string;
+}
+
+const bus = new EventBus<MyEvents>();
+
+bus.on('data', () => {
+    console.log('I was registered first!');
+})
+
+bus.on('data', () => {
+    console.log('I am higher priority!');
+}, { priority: 5 });
+
+// prints 'I am higher priority!' then 'I was registered first!'
+bus.emit('data', 'testing priority');
+```
