@@ -84,3 +84,8 @@ bus.on('data', () => {
 // prints 'I am higher priority!' then 'I was registered first!'
 bus.emit('data', 'testing priority');
 ```
+
+### Removing listeners
+
+There are three methods for removing listeners. Use `off` to remove a single listener. Give a reference to the listener to remove it. Use `removeAllListenersForEvent` to remove all listeners for a particular event.
+Use `removeAllListeners` to remove all listeners from all events.
