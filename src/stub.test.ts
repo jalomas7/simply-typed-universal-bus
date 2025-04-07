@@ -92,4 +92,31 @@ describe('EventBus', () => {
         expect(listener1).not.toHaveBeenCalled();
         expect(listener2).not.toHaveBeenCalled();
     });
+
+    it('should not throw when emitting an event', () => {
+        const listener = jest.fn(() => { throw new Error('test'); });
+        testBus.on('data', listener);
+
+        expect(async () => {
+            testBus.emit('data', 'test');
+            await testBus.emitAsync('data', 'test');
+        }).not.toThrow();
+    });
+
+    it('should throw when abortAllOnError is true', () => {
+        const listener = jest.fn(() => { throw new Error('test'); });
+        const listener2 = jest.fn();
+        testBus.on('data', listener, { abortAllOnError: true });
+        testBus.on('data', listener2);
+
+        expect(() => {
+            testBus.emit('data', 'test');
+        }).toThrow();
+
+        expect(async () => {
+            await testBus.emitAsync('data', 'test');
+        }).rejects.toThrow();
+
+        expect(listener2).not.toHaveBeenCalled();
+    });
 });

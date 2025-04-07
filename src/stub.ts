@@ -5,6 +5,7 @@ export interface EventTypeMap {
 
 export interface ListenerOptions {
     priority?: number;
+    abortAllOnError?: boolean;
 }
 
 export class EventBus<T extends EventTypeMap> {
@@ -17,7 +18,7 @@ export class EventBus<T extends EventTypeMap> {
         if (!this.listeners[event]) {
             this.listeners[event] = [];
         }
-        this.listeners[event]!.push({ listener, priority: options?.priority });
+        this.listeners[event]!.push({ listener, ...options });
 
         // Sort ascending, higher number == higher priority
         this.listeners[event].sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
@@ -32,8 +33,14 @@ export class EventBus<T extends EventTypeMap> {
     // Emit an event with the proper payload.
     emit<K extends keyof T>(event: K, payload: T[K]): void {
         if (this.listeners[event]) {
-            for (const { listener } of this.listeners[event]!) {
-                listener(payload);
+            for (const { listener, abortAllOnError } of this.listeners[event]!) {
+                try {
+                    listener(payload);
+                } catch (error) {
+                    if (abortAllOnError) {
+                        throw error;
+                    }
+                }
             }
         }
     }
@@ -41,7 +48,15 @@ export class EventBus<T extends EventTypeMap> {
     // Emit an event and listen asynchronously
     async emitAsync<K extends keyof T>(event: K, payload: T[K]): Promise<void> {
         if (this.listeners[event]) {
-            await Promise.all(this.listeners[event].map(({ listener }) => listener(payload)));
+            await Promise.all(this.listeners[event].map(({ listener, abortAllOnError }) => {
+                try {
+                    listener(payload);
+                } catch (error) {
+                    if (abortAllOnError) {
+                        throw error;
+                    }
+                }
+            }));
         }
     }
 
