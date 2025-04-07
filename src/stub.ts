@@ -71,9 +71,9 @@ export class EventBus<T extends EventTypeMap> {
             return errors;
         }
 
-        await Promise.all(this.listeners[event].map(({ listener, abortAllOnError }) => {
+        await Promise.all(this.listeners[event].map(async ({ listener, abortAllOnError }) => {
             try {
-                listener(payload);
+                await listener(payload);
             } catch (error) {
 
                 const err = error instanceof Error ? error : new Error(String(error));
