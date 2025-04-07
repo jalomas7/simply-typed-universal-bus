@@ -45,4 +45,12 @@ export class EventBus<T extends EventTypeMap> {
         }
     }
 
+    removeAllListenersForEvent<K extends keyof T>(event: K): void {
+        this.listeners[event] = [];
+    }
+
+    removeAllListeners(): void {
+        this.listeners = {};
+    }
+
 }

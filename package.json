@@ -7,7 +7,8 @@
     "url": "https://github.com/jalomas7/simply-typed-universal-bus"
   },
   "scripts": {
-    "build": "rm -rf dist && tsc"
+    "build": "rm -rf dist && tsc",
+    "test": "jest"
   },
   "keywords": [],
   "author": "Jacob Massengill",
@@ -15,5 +16,11 @@
   "type": "module",
   "dependencies": {
     "typescript": "^5.8.3"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.27.0",
+    "@types/jest": "^29.5.14",
+    "jest": "^29.7.0"
   }
 }
