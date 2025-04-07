@@ -1,0 +1,12 @@
+# files
+.github
+.npmignore
+babel.config.js
+tsconfig.json
+jest.config.js
+setup-jest.js
+
+# folders
+dist/examples
+node_modules
+src
