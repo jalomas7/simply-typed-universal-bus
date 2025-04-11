@@ -1,4 +1,3 @@
-
 export interface EventTypeMap {
     [event: string]: any;
 }
@@ -6,6 +5,7 @@ export interface EventTypeMap {
 export interface ListenerOptions {
     priority?: number;
     abortAllOnError?: boolean;
+    onError?: (error: Error, payload: any) => void;
 }
 
 export class EventBus<T extends EventTypeMap> {
@@ -44,7 +44,7 @@ export class EventBus<T extends EventTypeMap> {
             return errors;
         }
 
-        for (const { listener, abortAllOnError } of this.listeners[event]!) {
+        for (const { listener, abortAllOnError, onError } of this.listeners[event]!) {
             try {
                 listener(payload);
             } catch (error) {
@@ -53,6 +53,10 @@ export class EventBus<T extends EventTypeMap> {
                 errors.push(err);
                 if (this.globalErrorHandler) {
                     this.globalErrorHandler(err, event, payload);
+                }
+
+                if (onError) {
+                    onError(err, payload);
                 }
 
                 if (abortAllOnError) {
@@ -71,7 +75,7 @@ export class EventBus<T extends EventTypeMap> {
             return errors;
         }
 
-        await Promise.all(this.listeners[event].map(async ({ listener, abortAllOnError }) => {
+        await Promise.all(this.listeners[event].map(async ({ listener, abortAllOnError, onError }) => {
             try {
                 await listener(payload);
             } catch (error) {
@@ -81,6 +85,10 @@ export class EventBus<T extends EventTypeMap> {
 
                 if (this.globalErrorHandler) {
                     this.globalErrorHandler(err, event, payload);
+                }
+
+                if (onError) {
+                    onError(err, payload);
                 }
 
                 if (abortAllOnError) {
