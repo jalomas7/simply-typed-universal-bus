@@ -92,7 +92,7 @@ Use `removeAllListeners` to remove all listeners from all events.
 
 ## Error handling
 
-Errors can be handled in one of two ways; either through a global error handler that is applied to every error encountered during `emit` or `emitAsync`, or by checking the return values of `emit` or `emitAsync`. 
+Errors can be handled in one of three ways; either through a global error handler that is applied to every error encountered during `emit` or `emitAsync`, by checking the return values of `emit` or `emitAsync`, or by providing the `onError` listener option. 
 
 ### Global error handling
 
@@ -146,6 +146,31 @@ Errors can be handled in one of two ways; either through a global error handler 
         console.log(`Received error: ${error.message}`);
     }
 ```
+
+### Error handling through onError callback
+
+Note that the global error handler is still invoked when this option is provided, and will be invoked even when `abortAllOnError` is true. 
+
+```ts
+    import { EventBus } from 'simply-typed-universal-bus';
+
+    interface MyEvents {
+        data: string;
+    }
+
+    const bus = new EventBus<MyEvents>(); 
+
+    bus.on('data', () => {
+        throw new Error('error1');
+    }, {
+        onError: (err: Error, payload: MyEvents['data']) => {
+            console.log(`received error: ${error.message} on payload: ${payload}`);
+        }
+    });
+
+    const errors = bus.emit('data', 'hello world');
+```
+
 ### Abort listeners on error
 
 You also have the option to halt listeners during `emit` by using the `abortAllOnError` listener option. When this option is enabled and an error is encountered during the invocation of the listener, the error is thrown back to the `emit` caller. Note the global error handler is still called when this option is enabled. 
