@@ -75,7 +75,7 @@ export class EventBus<T extends EventTypeMap> {
             return errors;
         }
 
-        await Promise.all(this.listeners[event].map(async ({ listener, abortAllOnError, onError }) => {
+        for (const { listener, abortAllOnError, onError } of this.listeners[event]!) {
             try {
                 await listener(payload);
             } catch (error) {
@@ -95,7 +95,7 @@ export class EventBus<T extends EventTypeMap> {
                     throw error;
                 }
             }
-        }));
+        }
 
         return errors;
     }

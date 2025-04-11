@@ -103,9 +103,9 @@ describe('EventBus', () => {
         }).not.toThrow();
     });
 
-    it.only('should throw when abortAllOnError is true', () => {
-        const listener = jest.fn(() => { console.log('listener1'); throw new Error('test error'); });
-        const listener2 = jest.fn(() => { console.log('listener2'); });
+    it('should throw when abortAllOnError is true', () => {
+        const listener = jest.fn(() => { throw new Error('test error'); });
+        const listener2 = jest.fn();
         testBus.on('data', listener, { abortAllOnError: true });
         testBus.on('data', listener2);
 
@@ -149,6 +149,18 @@ describe('EventBus', () => {
         testBus.on('data', listener, { onError });
 
         testBus.emit('data', 'test');
+
+        expect(onError).toHaveBeenCalledWith(expect.any(Error), 'test');
+    });
+
+    it('should invoke onError callback even when abortAllOnError is true', () => {
+        const listener = jest.fn(() => { throw new Error('test'); });
+        const onError = jest.fn();
+        testBus.on('data', listener, { onError, abortAllOnError: true });
+
+        expect(() => {
+            testBus.emit('data', 'test');
+        }).toThrow();
 
         expect(onError).toHaveBeenCalledWith(expect.any(Error), 'test');
     });
