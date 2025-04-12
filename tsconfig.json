@@ -107,7 +107,6 @@
     "setup-jest.js"
   ],
   "exclude": [
-    "src/**/*.test.ts",
-    "src/examples"
+    "src/**/*.test.ts"
   ]
 }

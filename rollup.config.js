@@ -1,14 +1,16 @@
 import typescript from '@rollup/plugin-typescript';
+import multiInput from 'rollup-plugin-multi-input';
+
 import { minify } from 'rollup-plugin-esbuild-minify';
 
-
 export default {
-    input: 'src/stub.ts',
+    input: ['src/stub.ts', 'src/examples/*.ts'],
     output: {
-        file: 'dist/stub.js',
+        dir: 'dist',
         format: 'es'
     },
     plugins: [
+        multiInput(),
         typescript({
             tsconfig: './tsconfig.json',
             declaration: true,
