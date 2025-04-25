@@ -1,6 +1,6 @@
 {
   "name": "simply-typed-universal-bus",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "",
   "main": "dist/stub.js",
   "repository": {
@@ -14,9 +14,6 @@
   "author": "Jacob Massengill",
   "license": "ISC",
   "type": "module",
-  "dependencies": {
-    "typescript": "^5.8.3"
-  },
   "devDependencies": {
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
@@ -26,6 +23,7 @@
     "jest-extended": "^4.0.2",
     "rollup": "^4.40.0",
     "rollup-plugin-multi-input": "^1.5.0",
-    "tslib": "^2.8.1"
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
   }
 }
